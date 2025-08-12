@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Web dev class</title>
+    <style>
+        table ,th, td {
+            border: 1px solid black;
+            border-collapse: collapse;
+        }
+        body {
+            background: plum;
+            color: black;
+            font-family: Consolas,monaco,monospace;
+        }
+        .container {
+            display: grid;
+            grid-template-areas:
+                "header header"
+                "about-section content"
+                "class-section class-content";
+            grid-template-columns: 1fr 3fr;
+            grid-row-gap: 10px;
+        }
+        .container > div.header {
+            grid-area: header;
+            text-align: center;
+        }
+        .container > div.about-section {
+            display: grid;
+            padding: 50px;
+            height: 360px;
+        }
+        .container > div.content {
+            grid-area: content;
+        }
+        .container > div.class-section {
+            display: grid;
+            padding: 50px;
+        }
+        .container > div.class-content {
+            grid-area: class-content;
+        }
+        img {
+            width: auto;
+            max-height: 50%;
+        }
+        
+        
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>About me</h1>
+        </div>
+        
+        <div class="about-section">
+            <h3>Iram Maximiliano Lopez Guerrero</h3>
+            <img src="./aboa_better.png" alt="">
+        </div>
+        <div class="content">
+            <p>Professional endeavours:</p>
+            <ul>
+                <li>Software Engineer 4 years</li>
+                <ul>
+                    <li>Fullstack developer with C#, java, angular, reactnative, rust, python</li>
+                    <li>Software engineer with Erlang, elixir, ruby and python, mostly dealing with critical auto configuration network systems</li>
+                </ul> 
+                <li>Software Test Engineer 1 year</li>
+                <ul>
+                    <li>Python automation and CI/CD pipelines with jenkins</li>
+                    <li>Performance and scale testing on AWS based applications</li>
+                    <li>AI performance testing and metrics validation</li>
+                </ul>
+            </ul>
+            <b></b>
+            <p>Educational endeavours</p>
+            <ul>
+                <li>Ingeniería en Tecnologías de la Información y Sistemas Inteligentes</li>
+                <li>Especialidad en gestión de proyectos</li>
+                <li>Especialidad en simuladores gráficos</li>
+                <li>Maestría en ingeniería</li>
+                <li>Vortex founder</li>
+                <li>Robotics team leader</li>
+            </ul>
+        </div>
+        <div class="class-section">
+            <h2>Class rules</h2>
+            <img src="./rules.jpg" alt="">
+        </div>
+        <div class = "class-content">
+            <p>Percentages</p>
+            <ul>
+                <li>Term</li>
+                <ul>
+                    <li>40% Final Project</li>
+                    <ul>
+                        <li>These programming languages are the only ones permitted for your Project(backend)  
+                            <p>C#, Go, Typescript, Java, Rustlang and C++</p>
+                            <p>If you do it in any functional language you may eligible to extra credit</p>
+                            <p>Python shall only be permitted <b>ONLY BEING A PART OF THE BACKEND</b> if you integrate an MCP/Agent solution to your project, you will have to connect your backend to this python solution</p>
+                            <a href="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fi.imgflip.com%2F9urfy5.jpg&f=1&nofb=1&ipt=b415e8731c3d2803aaf8ebc09d223adb62ffbe41598d9b494a63852995b1f0d8">If you have questions refer to this link</a>
+                        </li>
+                    </ul>
+                    <li>30% Final test</li>
+                    <li>30% Continous term evaluation</li>
+
+                </ul>
+                <li>Monthly evaluation</li>
+                    <ul>
+                        <li>60% Project evaluation</li>
+                        <li>
+                            <p>30% Class work</p>
+                            <p>It can change overtime depending on the necessities of the class</p>
+                        </li>
+                        <li>10% Test</li>
+                    </ul>
+                <li>EXTRA CREDIT</li>
+                    <ul>
+                        <li>Extra credit will be considered depending on the behaviour/vibes of the class, also if they step up their work</li>
+                    </ul>
+            </ul>
+            <p>Class rules</p>
+            <table style="text-align: center; border-style: solid;">
+                <tr>
+                    <th>Copy</th>
+                    <th >Absents and lateness</th> 
+                    <th>Work out of date</th>
+                </tr>
+                <tr>
+                    <td>No copy allowed</td>
+                    <td> 
+                        <p>No absents shall be justified and lateness</p> 
+                        <p>Lateness will be handled according to school policy</p>
+                    </td>
+                    <td>Schoolwork out of time will be graded with a 0 "Some exceptions might take place depending on the reason and justification of the lateness"</td>
+                </tr>
+            </table>
+        </div>  
+    </div>
+</body>
+</html>

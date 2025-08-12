@@ -1,0 +1,41 @@
+table ,th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+body {
+    background: plum;
+    color: black;
+    font-family: Consolas,monaco,monospace;
+}
+.container {
+    display: grid;
+    grid-template-areas:
+        "header header"
+        "about-section content"
+        "class-section class-content";
+    grid-template-columns: 1fr 3fr;
+    grid-row-gap: 10px;
+}
+.container > div.header {
+    grid-area: header;
+    text-align: center;
+}
+.container > div.about-section {
+    display: grid;
+    padding: 50px;
+    height: 360px;
+}
+.container > div.content {
+    grid-area: content;
+}
+.container > div.class-section {
+    display: grid;
+    padding: 50px;
+}
+.container > div.class-content {
+    grid-area: class-content;
+}
+img {
+    width: auto;
+    max-height: 50%;
+}
