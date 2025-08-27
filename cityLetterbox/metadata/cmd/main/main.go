@@ -8,20 +8,20 @@ import (
 	"net/http"
 	"time"
 
+	"cityletterbox.com/metadata/internal/controller/metadata"
+	httphandler "cityletterbox.com/metadata/internal/handler/http"
+	"cityletterbox.com/metadata/internal/repository/memory"
 	"cityletterbox.com/pkg/discovery/consul"
 	discovery "cityletterbox.com/pkg/registry"
-	"cityletterbox.com/rating/internal/controller/rating"
-	httpHandler "cityletterbox.com/rating/internal/handler/http"
-	"cityletterbox.com/rating/internal/repository/memory"
 )
 
-const serviceName = "rating"
+const serviceName = "metadata"
 
 func main() {
 	var port int
-	flag.IntVar(&port, "port", 8082, "API handler port")
+	flag.IntVar(&port, "port", 8081, "API handler port")
 	flag.Parse()
-	log.Printf("Starting rating service on port %d", port)
+	log.Printf("Starting metadata service on port %d", port)
 	registry, err := consul.NewRegistry("localhost:8500")
 	if err != nil {
 		panic(err)
@@ -40,10 +40,11 @@ func main() {
 		}
 	}()
 	defer registry.Deregister(ctx, instanceID, serviceName)
-	repo := memory.New()
-	ctrl := rating.New(repo)
-	h := httpHandler.New(ctrl)
-	http.Handle("/rating", http.HandlerFunc(h.Handle))
+	r := memory.New()
+	c := metadata.New(r)
+	h := httphandler.New(c)
+
+	http.Handle("/metadata", http.HandlerFunc(h.GetMetadata))
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil); err != nil {
 		panic(err)
 	}

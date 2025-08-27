@@ -4,19 +4,28 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
+	"math/rand"
 	"net/http"
 
 	"cityletterbox.com/movie/internal/gateway"
+	discovery "cityletterbox.com/pkg/registry"
 	"cityletterbox.com/rating/pkg/model"
 )
 
 type Gateway struct {
-	addr string
+	registry discovery.Registry
 }
 
 // putRating implements movie.ratingGateway.
 func (g *Gateway) PutRating(ctx context.Context, recordID model.RecordID, recordType model.RecordType, rating *model.Rating) error {
-	req, err := http.NewRequest(http.MethodPut, g.addr+"/rating", nil)
+	addrs, err := g.registry.ServiceAddress(ctx, "rating")
+	if err != nil {
+		return err
+	}
+	url := "http://" + addrs[rand.Intn(len(addrs))] + "/rating"
+	log.Printf("%s", "Calling rating service, request: PUT"+url)
+	req, err := http.NewRequest(http.MethodPut, url, nil)
 	if err != nil {
 		return err
 	}
@@ -37,12 +46,18 @@ func (g *Gateway) PutRating(ctx context.Context, recordID model.RecordID, record
 	return nil
 }
 
-func New(addr string) *Gateway {
-	return &Gateway{addr}
+func New(registry discovery.Registry) *Gateway {
+	return &Gateway{registry}
 }
 
 func (g *Gateway) GetAggregatedRating(ctx context.Context, recordID model.RecordID, recordType model.RecordType) (float64, error) {
-	req, err := http.NewRequest(http.MethodGet, g.addr+"/rating", nil)
+	addrs, err := g.registry.ServiceAddress(ctx, "rating")
+	if err != nil {
+		return 0, err
+	}
+	url := "http://" + addrs[rand.Intn(len(addrs))] + "/rating"
+	log.Printf("%s", "Calling rating service, request: GET "+url)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return 0, err
 	}

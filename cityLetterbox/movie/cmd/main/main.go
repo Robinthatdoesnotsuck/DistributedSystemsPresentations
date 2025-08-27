@@ -8,20 +8,21 @@ import (
 	"net/http"
 	"time"
 
+	"cityletterbox.com/movie/internal/controller/movie"
+	metadatagateway "cityletterbox.com/movie/internal/gateway/metadata/http"
+	ratinggateway "cityletterbox.com/movie/internal/gateway/rating/http"
+	httphandler "cityletterbox.com/movie/internal/handler/http"
 	"cityletterbox.com/pkg/discovery/consul"
 	discovery "cityletterbox.com/pkg/registry"
-	"cityletterbox.com/rating/internal/controller/rating"
-	httpHandler "cityletterbox.com/rating/internal/handler/http"
-	"cityletterbox.com/rating/internal/repository/memory"
 )
 
-const serviceName = "rating"
+const serviceName = "movie"
 
 func main() {
 	var port int
-	flag.IntVar(&port, "port", 8082, "API handler port")
+	flag.IntVar(&port, "port", 8083, "API Handler port")
 	flag.Parse()
-	log.Printf("Starting rating service on port %d", port)
+	log.Printf("Starting movie + rating service on port: %d", port)
 	registry, err := consul.NewRegistry("localhost:8500")
 	if err != nil {
 		panic(err)
@@ -40,10 +41,11 @@ func main() {
 		}
 	}()
 	defer registry.Deregister(ctx, instanceID, serviceName)
-	repo := memory.New()
-	ctrl := rating.New(repo)
-	h := httpHandler.New(ctrl)
-	http.Handle("/rating", http.HandlerFunc(h.Handle))
+	metadataGateway := metadatagateway.New(registry)
+	ratingGateway := ratinggateway.New(registry)
+	ctrl := movie.New(ratingGateway, metadataGateway)
+	h := httphandler.New(ctrl)
+	http.Handle("/movie", http.HandlerFunc(h.GetMovieDetails))
 	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil); err != nil {
 		panic(err)
 	}

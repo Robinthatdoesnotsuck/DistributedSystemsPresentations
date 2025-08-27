@@ -4,22 +4,31 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
+	"math/rand"
 	"net/http"
 
 	model "cityletterbox.com/metadata/pkg"
 	"cityletterbox.com/movie/internal/gateway"
+	discovery "cityletterbox.com/pkg/registry"
 )
 
 type Gateway struct {
-	addr string
+	registry discovery.Registry
 }
 
-func New(addr string) *Gateway {
-	return &Gateway{addr}
+func New(registry discovery.Registry) *Gateway {
+	return &Gateway{registry}
 }
 
 func (g *Gateway) Get(ctx context.Context, id string) (*model.Metadata, error) {
-	req, err := http.NewRequest(http.MethodGet, g.addr+"/metadata", nil)
+	addrs, err := g.registry.ServiceAddress(ctx, "metadata")
+	if err != nil {
+		return nil, err
+	}
+	url := "http://" + addrs[rand.Intn(len(addrs))] + "/metadata"
+	log.Printf("%s", "Calling metadata service, request: GET "+url)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
 	}
