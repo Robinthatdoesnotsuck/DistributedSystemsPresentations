@@ -8,7 +8,7 @@ movie-service:
 test-rating-service:
 
 test-metadata-service:
-
+	curl -X PUT -d id=1 -d localhost:8081/metadata
 test-movie-service:
 	curl -v localhost:8083/movie?id=1
 
