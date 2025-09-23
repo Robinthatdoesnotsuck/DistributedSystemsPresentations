@@ -14,3 +14,9 @@ test-movie-service:
 
 run-consul-dev-server:
 	docker run -d -p 8500:8500 -p 8600:8600/udp --name=dev-consul consul:1.15.4 agent -server -ui -node=server-1 -bootstrap-expect=1 -client=0.0.0.0
+
+generate-protobuf-code-only-for-model:
+	protoc -I=api --go_out=. letterbox.proto
+
+generate-protobuf-code-with-grpc:
+	protoc -I=api --go_out=. --go-grpc_out=. letterbox.proto

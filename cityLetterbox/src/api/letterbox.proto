@@ -1,6 +1,60 @@
 syntax = "proto3";
 option go_package = "/gen";
 
+service MetadataService {
+    rpc GetMetadata(GetMetadataRequest) returns (GetMetadataResponse);
+    rpc PutMetadata(PutMetadataRequest) returns (PutMetadaResponse);
+}
+
+service RatingService {
+    rpc GetAggregatedRating(GetAggregatedRatingRequest) returns(GetAggregatedRatingResponse);
+    rpc PutRating(PutRatingRequest) returns(PutRatingResponse);
+}
+
+service MovieService {
+    rpc GetMovieDetails(GetMovieDetailsRequest) returns (GetMovieDetailsResponse);
+}
+
+message GetMetadataRequest { 
+    string movie_id = 1;
+}
+
+message GetMetadataResponse {
+    Metadata metadata = 1;
+}
+
+message PutMetadataRequest {
+    Metadata metadata = 1;
+}
+
+message PutMetadaResponse {}
+
+message GetAggregatedRatingRequest {
+    string record_id =1;
+    int32 record_type = 2;
+}
+
+message GetAggregatedRatingResponse {
+    double rating_value = 1;
+}
+
+message PutRatingRequest {
+    string user_id = 1;
+    string record_id = 2;
+    int32 record_type = 3;
+    int32 rating_value = 4;
+}
+
+message PutRatingResponse {}
+
+message GetMovieDetailsRequest {
+    string movie_id = 1;
+}
+
+message GetMovieDetailsResponse {
+    MovieDetails movie_details = 1;
+}
+
 message Metadata {
     string id = 1;
     MoviesStruct movie = 2;
@@ -9,7 +63,7 @@ message Metadata {
 message MoviesStruct{
     string director = 1;
     string title = 2;
-    string genre = 3;
+    string description = 3;
 }
 
 message MovieDetails {
