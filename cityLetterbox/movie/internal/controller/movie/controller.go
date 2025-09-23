@@ -14,7 +14,7 @@ var ErrNotFound = errors.New("movie metadata not found")
 
 type ratingGateway interface {
 	GetAggregatedRating(ctx context.Context, recordID ratingModel.RecordID, recordType ratingModel.RecordType) (float64, error)
-	PutRating(ctx context.Context, recordID ratingModel.RecordID, recordType ratingModel.RecordType, rating *ratingModel.Rating) error
+	//PutRating(ctx context.Context, recordID ratingModel.RecordID, recordType ratingModel.RecordType, rating *ratingModel.Rating) error
 }
 
 type metadataGateway interface {

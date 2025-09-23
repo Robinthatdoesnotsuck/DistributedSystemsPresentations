@@ -5,6 +5,13 @@ metadata-service:
 movie-service:
 	go run movie/cmd/main/main.go;
 
+rating-service-grpc:
+	go run rating/cmd/grpcmain/main.go;
+metadata-service-grpc:
+	go run metadata/cmd/grpcmain/main.go;
+movie-service-grpc:
+	go run movie/cmd/grpcmain/main.go;
+
 test-rating-service:
 
 test-metadata-service:
