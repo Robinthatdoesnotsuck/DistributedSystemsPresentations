@@ -11,9 +11,7 @@ metadata-service-grpc:
 	go run metadata/cmd/grpcmain/main.go;
 movie-service-grpc:
 	go run movie/cmd/grpcmain/main.go;
-
-test-rating-service:
-
+	
 test-metadata-service:
 	curl -X PUT -d id=1 -d localhost:8081/metadata
 test-movie-service:

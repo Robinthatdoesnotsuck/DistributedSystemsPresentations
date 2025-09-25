@@ -12,6 +12,7 @@ import (
 	discovery "cityletterbox.com/pkg/registry"
 	"cityletterbox.com/rating/internal/controller/rating"
 	grpc_handler "cityletterbox.com/rating/internal/handler/grpc"
+	"cityletterbox.com/rating/internal/kafka"
 	"cityletterbox.com/rating/internal/repository/memory"
 	"cityletterbox.com/src/gen"
 	"google.golang.org/grpc"
@@ -43,7 +44,14 @@ func main() {
 	}()
 	defer registry.Deregister(ctx, instanceID, serviceName)
 	repo := memory.New()
-	ctrl := rating.New(repo)
+	ingester, err := kafka.NewIngester("localhost", "rating", "ratings")
+	if err != nil {
+		log.Fatalf("Failed to init ingestion: %v", err)
+	}
+	ctrl := rating.New(repo, ingester)
+	if err := ctrl.StartIngestion(ctx); err != nil {
+		log.Fatalf("failed to start the file ingestion: %v", err)
+	}
 	hdlr := grpc_handler.New(ctrl)
 	list, err := net.Listen("tcp", "localhost:8082")
 	if err != nil {
