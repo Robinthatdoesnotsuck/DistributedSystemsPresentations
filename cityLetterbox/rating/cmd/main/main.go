@@ -2,25 +2,37 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"log"
-	"net/http"
+	"net"
+	"os"
 	"time"
 
 	"cityletterbox.com/pkg/discovery/consul"
 	discovery "cityletterbox.com/pkg/registry"
 	"cityletterbox.com/rating/internal/controller/rating"
-	httpHandler "cityletterbox.com/rating/internal/handler/http"
+	grpc_handler "cityletterbox.com/rating/internal/handler/grpc"
+	"cityletterbox.com/rating/internal/kafka"
 	"cityletterbox.com/rating/internal/repository/memory"
+	"cityletterbox.com/src/gen"
+	"google.golang.org/grpc"
+	"gopkg.in/yaml.v3"
 )
 
 const serviceName = "rating"
 
 func main() {
-	var port int
-	flag.IntVar(&port, "port", 8082, "API handler port")
-	flag.Parse()
+	f, err := os.Open("base.yaml")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	var cfg serviceConfig
+	if err := yaml.NewDecoder(f).Decode(&cfg); err != nil {
+		panic(err)
+	}
+	port := cfg.APIConfig.Port
 	log.Printf("Starting rating service on port %d", port)
 	registry, err := consul.NewRegistry("localhost:8500")
 	if err != nil {
@@ -41,10 +53,23 @@ func main() {
 	}()
 	defer registry.Deregister(ctx, instanceID, serviceName)
 	repo := memory.New()
-	ctrl := rating.New(repo)
-	h := httpHandler.New(ctrl)
-	http.Handle("/rating", http.HandlerFunc(h.Handle))
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil); err != nil {
+	ingester, err := kafka.NewIngester("localhost", "rating", "ratings")
+	if err != nil {
+		log.Fatalf("Failed to init ingestion: %v", err)
+	}
+	ctrl := rating.New(repo, ingester)
+	if err := ctrl.StartIngestion(ctx); err != nil {
+		log.Fatalf("failed to start the file ingestion: %v", err)
+	}
+	hdlr := grpc_handler.New(ctrl)
+	list, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", cfg.APIConfig.Port))
+	if err != nil {
+		log.Fatalf("Failed to listen : %v", err)
+	}
+	srv := grpc.NewServer()
+	gen.RegisterRatingServiceServer(srv, hdlr)
+	srv.Serve(list)
+	if err := srv.Serve(list); err != nil {
 		panic(err)
 	}
 }

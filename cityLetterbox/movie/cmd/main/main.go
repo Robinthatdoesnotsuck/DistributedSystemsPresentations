@@ -2,26 +2,37 @@ package main
 
 import (
 	"context"
-	"flag"
 	"fmt"
 	"log"
-	"net/http"
+	"net"
+	"os"
 	"time"
 
 	"cityletterbox.com/movie/internal/controller/movie"
-	metadatagateway "cityletterbox.com/movie/internal/gateway/metadata/http"
-	ratinggateway "cityletterbox.com/movie/internal/gateway/rating/http"
-	httphandler "cityletterbox.com/movie/internal/handler/http"
+	metadatagateway "cityletterbox.com/movie/internal/gateway/metadata/grpc"
+	ratinggateway "cityletterbox.com/movie/internal/gateway/rating/grpc"
+	grpc_handler "cityletterbox.com/movie/internal/handler/grpc"
 	"cityletterbox.com/pkg/discovery/consul"
 	discovery "cityletterbox.com/pkg/registry"
+	"cityletterbox.com/src/gen"
+	"google.golang.org/grpc"
+	"gopkg.in/yaml.v3"
 )
 
 const serviceName = "movie"
 
 func main() {
-	var port int
-	flag.IntVar(&port, "port", 8083, "API Handler port")
-	flag.Parse()
+	f, err := os.Open("base.yaml")
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	var cfg serviceConfig
+	if err := yaml.NewDecoder(f).Decode(&cfg); err != nil {
+		panic(err)
+	}
+	port := cfg.APIConfig.Port
 	log.Printf("Starting movie + rating service on port: %d", port)
 	registry, err := consul.NewRegistry("localhost:8500")
 	if err != nil {
@@ -44,9 +55,12 @@ func main() {
 	metadataGateway := metadatagateway.New(registry)
 	ratingGateway := ratinggateway.New(registry)
 	ctrl := movie.New(ratingGateway, metadataGateway)
-	h := httphandler.New(ctrl)
-	http.Handle("/movie", http.HandlerFunc(h.GetMovieDetails))
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), nil); err != nil {
-		panic(err)
+	hdlr := grpc_handler.New(ctrl)
+	lis, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", cfg.APIConfig.Port))
+	if err != nil {
+		log.Fatalf("Failed to listen: %v", err)
 	}
+	srv := grpc.NewServer()
+	gen.RegisterMovieServiceServer(srv, hdlr)
+	srv.Serve(lis)
 }

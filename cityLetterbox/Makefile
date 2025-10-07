@@ -25,3 +25,6 @@ generate-protobuf-code-only-for-model:
 
 generate-protobuf-code-with-grpc:
 	protoc -I=api --go_out=. --go-grpc_out=. letterbox.proto
+
+compile-service:
+	GOOS=linux go build -o main cmd/*.go
