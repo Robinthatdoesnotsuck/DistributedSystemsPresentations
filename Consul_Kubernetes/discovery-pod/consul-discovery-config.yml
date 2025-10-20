@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: consul-config
+data:
+  consul.json: |
+    {
+      "data_dir": "/tmp/consul",
+      "bind_addr": "0.0.0.0",
+      "ports": {
+        "http": 8500
+      },
+      "services": {
+        "service": {
+          "checks": [
+            {
+              "id": "service-check",
+              "name": "Service check",
+              "args": "/bin/echo Service is running",
+              "interval": "10s"
+            }
+          ]
+        }
+      }
+    }

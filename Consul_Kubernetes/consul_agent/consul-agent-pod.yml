@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: consul-agent
+spec:
+  containers:
+  - name: consul
+    image: consul:1.7.0
+    command: ["consul", "agent", "-server", "-data-dir=/tmp/consul", "-config-file=/etc/consul/config.json"]
+    volumeMounts:
+    - name: consul-data
+      mountPath: /tmp/consul
+    - name: consul-config
+      mountPath: /etc/consul
+  volumes:
+  - name: consul-data
+    emptyDir: {}
+  - name: consul-config
+    configMap:
+      name: consul-config

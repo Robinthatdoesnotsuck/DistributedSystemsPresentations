@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: consul-config
+data:
+  consul.json: |
+    {
+      "data_dir": "/tmp/consul",
+      "server": true,
+      "bind_addr": "0.0.0.0",
+      "ports": {
+        "http": 8500
+      }
+    }
