@@ -1,0 +1,56 @@
+# ollama-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ollama-deployment
+  namespace: ai-models
+  labels:
+    app: ollama
+    version: v1.0
+spec:
+  replicas: 3  # Start with 3 pods for load distribution
+  selector:
+    matchLabels:
+      app: ollama
+  template:
+    metadata:
+      labels:
+        app: ollama
+    spec:
+      containers:
+      - name: ollama
+        image: ollama/ollama:latest
+        ports:
+        - containerPort: 11434  # Default Ollama API port
+          name: api
+        env:
+        - name: OLLAMA_HOST
+          value: "0.0.0.0"  # Listen on all interfaces
+        - name: OLLAMA_ORIGINS
+          value: "*"  # Allow cross-origin requests
+        resources:
+          requests:
+            memory: "4Gi"  # Minimum memory requirement
+            cpu: "1000m"   # 1 CPU core minimum
+          limits:
+            memory: "8Gi"  # Maximum memory usage
+            cpu: "2000m"   # 2 CPU cores maximum
+        volumeMounts:
+        - name: ollama-data
+          mountPath: /root/.ollama  # Model storage location
+        livenessProbe:
+          httpGet:
+            path: /api/tags  # Health check endpoint
+            port: 11434
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /api/tags
+            port: 11434
+          initialDelaySeconds: 30
+          periodSeconds: 10
+      volumes:
+      - name: ollama-data
+        persistentVolumeClaim:
+          claimName: ollama-pvc
